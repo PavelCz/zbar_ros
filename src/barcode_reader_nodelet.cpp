@@ -48,6 +48,9 @@ namespace zbar_ros {
                                                    boost::bind(&BarcodeReaderNodelet::disconnectCb, this));
 
     private_nh_.param<double>("throttle_repeated_barcodes", throttle_, 0.0);
+    // the timeout between every image scan; decreases CPU usage of this node,
+    // by not using zbar on every single camera frame
+    private_nh_.param<double>("timeout_duration", timeout_duration_, 0.0);
     if (throttle_ > 0.0) {
       clean_timer_ = nh_.createTimer(ros::Duration(10.0), boost::bind(&BarcodeReaderNodelet::cleanCb, this));
     }
@@ -70,8 +73,8 @@ namespace zbar_ros {
 
   void BarcodeReaderNodelet::imageCb(const sensor_msgs::ImageConstPtr &image) {
     // Throttle how often barcode reader is used
-    // Only use barcode reader once every second
-    if (ros::Time::now() - previous_time_ > ros::Duration(1)) {
+    // Only use barcode reader if timeout_duration_ time passed
+    if (ros::Time::now() - previous_time_ > ros::Duration(timeout_duration_)) {
       previous_time_ = ros::Time::now();
       cv_bridge::CvImageConstPtr cv_image;
       cv_image = cv_bridge::toCvShare(image, "mono8");
@@ -122,4 +125,5 @@ namespace zbar_ros {
   }
 }  // namespace zbar_ros
 
-PLUGINLIB_DECLARE_CLASS(zbar_ros, BarcodeReaderNodelet, zbar_ros::BarcodeReaderNodelet, nodelet::Nodelet);
+PLUGINLIB_DECLARE_CLASS(zbar_ros, BarcodeReaderNodelet, zbar_ros::BarcodeReaderNodelet, nodelet::Nodelet
+);

@@ -65,6 +65,7 @@ namespace zbar_ros
     double throttle_;
 
     ros::Time previous_time_;
+    ros::Time timeout_duration_;
   };
 
 }  // namespace zbar_ros
