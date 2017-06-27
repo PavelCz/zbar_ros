@@ -63,6 +63,8 @@ namespace zbar_ros
     boost::unordered_map<std::string, ros::Time> barcode_memory_;
 
     double throttle_;
+
+    ros::Time previous_time_;
   };
 
 }  // namespace zbar_ros
